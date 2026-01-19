@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useApiKey } from '../contexts/ApiKeyContext';
 import { X, Key, ShieldCheck, ExternalLink, Sparkles } from 'lucide-react';
 
 interface ApiKeyModalProps {
@@ -11,10 +12,11 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
   if (!isOpen) return null;
 
   const [apiKey, setApiKey] = React.useState('');
+  const { saveKey } = useApiKey();
 
   const handleConnect = async () => {
     if (apiKey.trim()) {
-      localStorage.setItem('gemini_api_key', apiKey.trim());
+      saveKey(apiKey.trim());
       onClose();
       return;
     }

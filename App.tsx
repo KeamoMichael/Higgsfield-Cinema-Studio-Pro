@@ -7,6 +7,8 @@ import { ApiKeyModal } from './components/ApiKeyModal';
 import { Resolution, AspectRatio, CinematicParams } from './types';
 import { generateImage } from './services/geminiService';
 
+import { useApiKey } from './contexts/ApiKeyContext';
+
 const App: React.FC = () => {
   const [prompt, setPrompt] = useState('');
   const [resolution, setResolution] = useState<Resolution>(Resolution._2K);
@@ -17,36 +19,48 @@ const App: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+  const { hasKey, checkKey } = useApiKey();
 
-  // Check for key on mount
+  // Check for key on mount and show modal if missing
   useEffect(() => {
-    const checkKey = async () => {
-      if (window.aistudio) {
-        const hasKey = await window.aistudio.hasSelectedApiKey();
-        if (!hasKey) {
-          setTimeout(() => setIsKeyModalOpen(true), 1000);
-        }
+    // Initial check is handled by context, but we check specific conditions to open modal
+    const initCheck = async () => {
+      if (!hasKey) {
+        // Optionally wait a bit before pestering user? 
+        // Or just check strictly triggers. 
+        // For now, let's replicate behavior: verify and if false open modal.
+        // Since context verifies on mount, we can depend on 'hasKey' but it might be false initially before check completes?
+        // Context initializes false. checkKey runs asynchronously.
+        // Let's rely on the user manual action mostly, OR open it if clearly no key.
+        // The original code checked window.aistudio specifically.
+
+        // Let's just trigger modal if no key after a short delay
+        setTimeout(() => {
+          if (!localStorage.getItem('gemini_api_key')) {
+            setIsKeyModalOpen(true);
+          }
+        }, 1000);
       }
     };
-    checkKey();
+    initCheck();
   }, []);
 
   const handleGenerate = async (params: CinematicParams = {}, attachments?: string[], specialMode?: 'consistent-angles') => {
     setIsGenerating(true);
     setError(null);
-    setImageUrls([]); 
-    
+    setImageUrls([]);
+
     // Set the first attachment as the "Base Image" if it exists
     if (attachments && attachments.length > 0) {
       setReferenceImage(attachments[0]);
     } else {
       setReferenceImage(null);
     }
-    
+
     try {
       const userVision = prompt.trim();
       let directorNote = "";
-      
+
       const effectiveVariations = specialMode === 'consistent-angles' ? 4 : numVariations;
 
       // Only generate director notes if params are provided (Director Mode)
@@ -90,7 +104,7 @@ const App: React.FC = () => {
       const finalPrompt = `${directorNote}\nSubject: ${userVision}\n--quality: premium, cinematic, highly-detailed, 8k, realistic textures, volumetric effects, masterwork.`;
 
       // Parallel generation for speed
-      const generationPromises = Array.from({ length: effectiveVariations }).map(() => 
+      const generationPromises = Array.from({ length: effectiveVariations }).map(() =>
         generateImage(finalPrompt, resolution, aspectRatio, attachments)
       );
 
@@ -113,24 +127,24 @@ const App: React.FC = () => {
 
       <main className="flex-1 flex flex-col w-full relative z-10 pt-20 pb-40 overflow-y-auto">
         {error && (
-            <div className="fixed top-24 left-1/2 -translate-x-1/2 w-full max-w-xl px-4 z-[100] animate-fade-in-down">
-                <div className="bg-[#1a1a1a] border border-red-500/30 text-red-400 px-4 py-3 rounded-2xl flex items-center justify-between shadow-2xl">
-                    <span className="text-sm font-bold tracking-tight">{error}</span>
-                    <button onClick={() => setError(null)} className="text-gray-500 hover:text-white">✕</button>
-                </div>
+          <div className="fixed top-24 left-1/2 -translate-x-1/2 w-full max-w-xl px-4 z-[100] animate-fade-in-down">
+            <div className="bg-[#1a1a1a] border border-red-500/30 text-red-400 px-4 py-3 rounded-2xl flex items-center justify-between shadow-2xl">
+              <span className="text-sm font-bold tracking-tight">{error}</span>
+              <button onClick={() => setError(null)} className="text-gray-500 hover:text-white">✕</button>
             </div>
+          </div>
         )}
 
-        <ImageDisplay 
-            imageUrls={imageUrls} 
-            referenceImage={referenceImage}
-            isLoading={isGenerating}
-            modelName="gemini-3-pro-image-preview"
-            resolution={resolution}
+        <ImageDisplay
+          imageUrls={imageUrls}
+          referenceImage={referenceImage}
+          isLoading={isGenerating}
+          modelName="gemini-3-pro-image-preview"
+          resolution={resolution}
         />
       </main>
 
-      <UnifiedChatBar 
+      <UnifiedChatBar
         prompt={prompt}
         setPrompt={setPrompt}
         resolution={resolution}
@@ -143,9 +157,9 @@ const App: React.FC = () => {
         onGenerate={handleGenerate}
       />
 
-      <ApiKeyModal 
-        isOpen={isKeyModalOpen} 
-        onClose={() => setIsKeyModalOpen(false)} 
+      <ApiKeyModal
+        isOpen={isKeyModalOpen}
+        onClose={() => setIsKeyModalOpen(false)}
       />
 
       <div className="fixed top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#c7ff00]/5 rounded-full blur-[140px] pointer-events-none z-0" />
