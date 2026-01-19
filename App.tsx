@@ -94,22 +94,29 @@ const App: React.FC = () => {
       }
 
       if (specialMode === 'consistent-angles') {
-        directorNote += "STRICT REQUIREMENT: Generate 4 distinct camera angles (Eye Level, Low Angle, Side Profile, Cinematic Wide) of the EXACT SAME subject and scene. Maintain absolute consistency of character details, clothing, lighting conditions, and environmental elements across all variations. ";
+        // Generate 4 separate images with different angles
+        const angles = ['Eye Level', 'Low Angle', 'Side Profile', 'Cinematic Wide'];
+        const generationPromises = angles.map((angle) => {
+          const anglePrompt = `${directorNote}\nCamera Angle: ${angle}. STRICT REQUIREMENT: Show the subject from a ${angle} perspective while maintaining absolute consistency of character details, clothing, lighting conditions, and environmental elements.\n${attachments && attachments.length > 0 ? `Maintain strict character and environmental consistency with the provided ${attachments.length} reference frame(s). ` : ''}\nSubject: ${userVision}\n--quality: premium, cinematic, highly-detailed, 8k, realistic textures, volumetric effects, masterwork.`;
+          return generateImage(anglePrompt, resolution, aspectRatio, attachments);
+        });
+        const urls = await Promise.all(generationPromises);
+        setImageUrls(urls);
+      } else {
+        if (attachments && attachments.length > 0) {
+          directorNote += `Maintain strict character and environmental consistency with the provided ${attachments.length} reference frame(s). `;
+        }
+
+        const finalPrompt = `${directorNote}\nSubject: ${userVision}\n--quality: premium, cinematic, highly-detailed, 8k, realistic textures, volumetric effects, masterwork.`;
+
+        // Parallel generation for speed
+        const generationPromises = Array.from({ length: effectiveVariations }).map(() =>
+          generateImage(finalPrompt, resolution, aspectRatio, attachments)
+        );
+
+        const urls = await Promise.all(generationPromises);
+        setImageUrls(urls);
       }
-
-      if (attachments && attachments.length > 0) {
-        directorNote += `Maintain strict character and environmental consistency with the provided ${attachments.length} reference frame(s). `;
-      }
-
-      const finalPrompt = `${directorNote}\nSubject: ${userVision}\n--quality: premium, cinematic, highly-detailed, 8k, realistic textures, volumetric effects, masterwork.`;
-
-      // Parallel generation for speed
-      const generationPromises = Array.from({ length: effectiveVariations }).map(() =>
-        generateImage(finalPrompt, resolution, aspectRatio, attachments)
-      );
-
-      const urls = await Promise.all(generationPromises);
-      setImageUrls(urls);
     } catch (err: any) {
       console.error(err);
       setError(err.message || "An unexpected error occurred.");
