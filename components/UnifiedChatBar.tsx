@@ -280,7 +280,7 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/5 pt-4 overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/5 pt-4">
             <div className="flex items-center gap-4 flex-shrink-0">
               <div className="relative" ref={menuRef}>
                 <button onClick={() => setIsAspectRatioMenuOpen(!isAspectRatioMenuOpen)} className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 border border-white/5 ${isAspectRatioMenuOpen ? 'bg-white text-black shadow-xl scale-110' : 'text-gray-500 hover:text-white hover:bg-white/10'}`}><Monitor size={18} /></button>
