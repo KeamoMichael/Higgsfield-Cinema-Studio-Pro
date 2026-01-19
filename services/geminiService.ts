@@ -4,6 +4,10 @@ import { Resolution, AspectRatio } from "../types";
 
 // Helper to ensure we have a key or prompt for one
 export const ensureApiKey = async (): Promise<boolean> => {
+  if (localStorage.getItem('gemini_api_key')) {
+    return true;
+  }
+
   if (window.aistudio) {
     const hasKey = await window.aistudio.hasSelectedApiKey();
     if (!hasKey) {
@@ -26,8 +30,9 @@ export const generateImage = async (
     // Ensure Key logic
     await ensureApiKey();
 
-    // Re-instantiate to grab the fresh key injected into process.env.API_KEY
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const storedKey = localStorage.getItem('gemini_api_key');
+    // Re-instantiate to grab the fresh key injected into process.env.API_KEY or localStorage
+    const ai = new GoogleGenAI({ apiKey: storedKey || process.env.API_KEY });
 
     // "Cinema Studio Pro" implies high quality, so we default to the Pro Image model
     // especially since 2K/4K is requested.
@@ -66,7 +71,7 @@ export const generateImage = async (
     if (response.candidates?.[0]?.content?.parts) {
       for (const part of response.candidates[0].content.parts) {
         if (part.inlineData && part.inlineData.data) {
-            return `data:image/png;base64,${part.inlineData.data}`;
+          return `data:image/png;base64,${part.inlineData.data}`;
         }
       }
     }
@@ -77,10 +82,10 @@ export const generateImage = async (
     console.error("Gemini Generation Error:", error);
     // If it's a "Requested entity was not found" (often key related), we might want to trigger key selection again
     if (error.message && error.message.includes("Requested entity was not found")) {
-         if (window.aistudio) {
-             await window.aistudio.openSelectKey();
-         }
-         throw new Error("API Key issue detected. Please re-select your key.");
+      if (window.aistudio) {
+        await window.aistudio.openSelectKey();
+      }
+      throw new Error("API Key issue detected. Please re-select your key.");
     }
     throw error;
   }

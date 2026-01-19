@@ -10,7 +10,15 @@ interface ApiKeyModalProps {
 export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
+  const [apiKey, setApiKey] = React.useState('');
+
   const handleConnect = async () => {
+    if (apiKey.trim()) {
+      localStorage.setItem('gemini_api_key', apiKey.trim());
+      onClose();
+      return;
+    }
+
     if (window.aistudio) {
       await window.aistudio.openSelectKey();
       // Proceed immediately as per race condition guidelines
@@ -21,16 +29,16 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-2xl" 
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-2xl"
         onClick={onClose}
       />
-      
+
       {/* Modal Card */}
       <div className="relative w-full max-w-md bg-[#121212] border border-white/10 rounded-[2.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-500">
-        
+
         {/* Close Button */}
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all z-10"
         >
@@ -48,12 +56,19 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
           <h2 className="text-2xl font-black text-white mb-3 tracking-tight uppercase">
             Connect API Key
           </h2>
-          
+
           <p className="text-[14px] text-gray-400 leading-relaxed mb-8 px-4 font-medium">
             To unlock the full potential of <span className="text-white">Gemini 3 Pro</span> and generate high-fidelity 4K cinematic frames, connect your professional API key.
           </p>
 
           <div className="w-full space-y-4">
+            <input
+              type="password"
+              placeholder="Paste your API Key here"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#c7ff00]/50 transition-colors text-center font-mono text-sm"
+            />
             <button
               onClick={handleConnect}
               className="w-full custom-gradient-btn h-14 rounded-2xl font-black text-[13px] uppercase tracking-[0.15em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-[0_15px_30px_rgba(199,255,0,0.25)]"
@@ -68,9 +83,9 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                 Secure Environment
               </div>
 
-              <a 
-                href="https://ai.google.dev/gemini-api/docs/billing" 
-                target="_blank" 
+              <a
+                href="https://ai.google.dev/gemini-api/docs/billing"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-[11px] font-bold text-[#c7ff00] hover:text-[#d4ff33] transition-colors"
               >
