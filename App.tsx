@@ -136,9 +136,29 @@ const App: React.FC = () => {
     setReferenceImage(baseImageUrl);
 
     try {
-      const angles = ['Eye Level', 'Low Angle', 'Side Profile', 'Cinematic Wide'];
-      const generationPromises = angles.map((angle) => {
-        const anglePrompt = `Camera Angle: ${angle}. STRICT REQUIREMENT: Generate the EXACT SAME subject, scene, and composition from a ${angle} perspective. Maintain absolute consistency of character details, clothing, lighting conditions, and environmental elements with the provided reference image.\n--quality: premium, cinematic, highly-detailed, 8k, realistic textures, volumetric effects, masterwork.`;
+      // AI-driven angles - let the model choose the best 4 angles for this specific scene
+      // Provides a pool of angles and asks AI to select the most cinematically appropriate ones
+      const anglePool = [
+        'Eye Level',
+        'Low Angle',
+        'Side Profile',
+        'Cinematic Wide',
+        'Close-up',
+        'Macro Shot',
+        'Ultra Wide Telephoto',
+        'Bird\'s Eye View',
+        'Dutch Angle',
+        'Over-the-Shoulder'
+      ];
+
+      // Generate 4 variations with AI-selected angles based on scene
+      const generationPromises = [1, 2, 3, 4].map((num) => {
+        const anglePrompt = `You are generating variation ${num} of 4 for this scene. 
+ANALYZE the reference image and select the MOST CINEMATICALLY APPROPRIATE angle from these options: ${anglePool.join(', ')}.
+Choose a DIFFERENT angle than what would be used in the other 3 variations to create a diverse yet cohesive set.
+Variation ${num} should use an angle that best showcases this particular scene's subject, mood, and composition.
+STRICT REQUIREMENT: Maintain ABSOLUTE consistency of character details, clothing, lighting conditions, and environmental elements with the reference.
+--quality: premium, cinematic, highly-detailed, 8k, realistic textures, volumetric effects, masterwork.`;
         return generateImage(anglePrompt, resolution, aspectRatio, [baseImageUrl]);
       });
 
