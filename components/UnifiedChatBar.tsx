@@ -2,6 +2,20 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Sparkles, Monitor, Film, Sun, Camera, Palette, Check, X, Search, ChevronRight, Plus, RotateCcw, Layers, Copy, Zap, Box, Compass } from 'lucide-react';
 import { Resolution, AspectRatio, CinematicParams, SelectionOption } from '../types';
+import sparklesIcon from '../Assets/sparkles.png';
+import {
+  SHOT_TYPE_OPTIONS,
+  ANGLE_OPTIONS,
+  LIGHTING_OPTIONS,
+  CAMERA_OPTIONS,
+  LENS_OPTIONS,
+  LENS_TYPE_OPTIONS,
+  GENRE_OPTIONS,
+  PHOTOGRAPHER_STYLE_OPTIONS,
+  MOVIE_LOOK_OPTIONS,
+  FILTER_OPTIONS,
+  FILM_STOCK_OPTIONS
+} from '../presets';
 
 interface UnifiedChatBarProps {
   prompt: string;
@@ -16,82 +30,6 @@ interface UnifiedChatBarProps {
   onGenerate: (params: CinematicParams, attachments?: string[], specialMode?: 'consistent-angles') => void;
 }
 
-const SHOT_TYPE_OPTIONS: SelectionOption[] = [
-  { id: 'closeup', label: 'CLOSE UP', description: 'Tight focus on subject detail', imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400' },
-  { id: 'medium', label: 'MEDIUM SHOT', description: 'Standard narrative framing', imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400' },
-  { id: 'wide', label: 'WIDE SHOT', description: 'Subject in environment', imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cinematic-wide', label: 'CINEMATIC WIDE', description: 'Epic landscape framing', imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=400' },
-  { id: 'pov', label: 'POV', description: 'Point of view perspective', imageUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=400' },
-];
-
-const ANGLE_OPTIONS: SelectionOption[] = [
-  { id: 'eyelevel', label: 'EYE LEVEL', description: 'Neutral perspective', imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400' },
-  { id: 'low', label: 'LOW ANGLE', description: 'Looking up, heroic feel', imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400' },
-  { id: 'high', label: 'HIGH ANGLE', description: 'Looking down perspective', imageUrl: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&q=80&w=400' },
-  { id: 'dutch', label: 'DUTCH ANGLE', description: 'Tilted horizon for tension', imageUrl: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=400' },
-  { id: 'birdseye', label: 'BIRD\'S EYE', description: 'Extreme top-down view', imageUrl: 'https://images.unsplash.com/photo-1444703686981-a3abb99d4fe3?auto=format&fit=crop&q=80&w=400' },
-];
-
-const LIGHTING_OPTIONS: SelectionOption[] = [
-  { id: 'natural', label: 'NATURAL LIGHT', description: 'Soft daylight through window', imageUrl: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?auto=format&fit=crop&q=80&w=400' },
-  { id: 'golden', label: 'GOLDEN HOUR', description: 'Warm sunset lighting', imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400' },
-  { id: 'blue', label: 'BLUE HOUR', description: 'Cool twilight ambient light', imageUrl: 'https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?auto=format&fit=crop&q=80&w=400' },
-  { id: 'hard', label: 'HARD LIGHTING', description: 'Sharp shadows, defined edges', imageUrl: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?auto=format&fit=crop&q=80&w=400' },
-  { id: 'soft', label: 'SOFT LIGHTING', description: 'Diffused, gentle illumination', imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400' },
-  { id: 'volumetric', label: 'VOLUMETRIC LIGHTING', description: 'Light rays through atmosphere', imageUrl: 'https://images.unsplash.com/photo-1444703686981-a3abb99d4fe3?auto=format&fit=crop&q=80&w=400' },
-  { id: 'neon', label: 'NEON GLOW', description: 'Colorful neon light on face', imageUrl: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=400' },
-  { id: 'chiaroscuro', label: 'CHIAROSCURO LIGHTING', description: 'Strong contrast of light and shadow', imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=400' },
-];
-
-const CAMERA_OPTIONS: SelectionOption[] = [
-  { id: 'arri65', label: 'ARRI ALEXA 65', description: 'Large format cinema', imageUrl: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&q=80&w=400' },
-  { id: 'redkomodo', label: 'RED KOMODO', description: '6K compact cinema', imageUrl: 'https://images.unsplash.com/photo-1533109721025-d1ae2ee8c1eb?auto=format&fit=crop&q=80&w=400' },
-  { id: 'venice', label: 'SONY VENICE', description: 'Full-frame cinema', imageUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=400' },
-  { id: 'bolex', label: 'BOLEX H16', description: '16mm film camera', imageUrl: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=400' },
-];
-
-const LENS_OPTIONS: SelectionOption[] = [
-  { id: 'wide-35', label: '35MM WIDE', description: 'Standard wide cinematic', imageUrl: 'https://images.unsplash.com/photo-1617113931037-f1319d36399b?auto=format&fit=crop&q=80&w=400' },
-  { id: 'prime-50', label: '50MM PRIME', description: 'Natural eye perspective', imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400' },
-  { id: 'tele-85', label: '85MM TELE', description: 'Compression and bokeh', imageUrl: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&q=80&w=400' },
-  { id: 'macro-100', label: '100MM MACRO', description: 'Extreme close up detail', imageUrl: 'https://images.unsplash.com/photo-1520390138845-fd2d229dd553?auto=format&fit=crop&q=80&w=400' },
-];
-
-const LENS_TYPE_OPTIONS: SelectionOption[] = [
-  { id: 'spherical', label: 'SPHERICAL', description: 'Classic clean optics', imageUrl: 'https://images.unsplash.com/photo-1493863641943-9b68992a8d07?auto=format&fit=crop&q=80&w=400' },
-  { id: 'anamorphic', label: 'ANAMORPHIC', description: 'Widescreen look & flare', imageUrl: 'https://images.unsplash.com/photo-1515634928627-2a4e0dae3ddf?auto=format&fit=crop&q=80&w=400' },
-];
-
-const GENRE_OPTIONS: SelectionOption[] = [
-  { id: 'portrait', label: 'PORTRAIT', imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400' },
-  { id: 'street', label: 'STREET', imageUrl: 'https://images.unsplash.com/photo-1471018197982-15ff78d45c82?auto=format&fit=crop&q=80&w=400' },
-  { id: 'fashion', label: 'FASHION', imageUrl: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&q=80&w=400' },
-  { id: 'macro', label: 'MACRO', imageUrl: 'https://images.unsplash.com/photo-1520390138845-fd2d229dd553?auto=format&fit=crop&q=80&w=400' },
-  { id: 'landscape', label: 'LANDSCAPE', imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=400' },
-  { id: 'architecture', label: 'ARCHITECTURE', imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400' },
-];
-
-const PHOTOGRAPHER_STYLE_OPTIONS: SelectionOption[] = [
-  { id: 'leibovitz', label: 'LEIBOVITZ', description: 'Moody dramatic portraiture', imageUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=400' },
-  { id: 'mccurry', label: 'MCCURRY', description: 'Vivid cultural storytelling', imageUrl: 'https://images.unsplash.com/photo-1488330890490-c291ecf627ad?auto=format&fit=crop&q=80&w=400' },
-  { id: 'lindbergh', label: 'LINDBERGH', description: 'Raw black & white fashion', imageUrl: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=400' },
-  { id: 'crewdson', label: 'CREWDSON', description: 'Surreal suburban cinematic', imageUrl: 'https://images.unsplash.com/photo-1502472545331-dc1943dd014b?auto=format&fit=crop&q=80&w=400' },
-];
-
-const MOVIE_LOOK_OPTIONS: SelectionOption[] = [
-  { id: 'cyberpunk', label: 'CYBERPUNK', description: 'Neon, rain, and grit', imageUrl: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80&w=400' },
-  { id: 'noir', label: 'FILM NOIR', description: 'High contrast shadows', imageUrl: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?auto=format&fit=crop&q=80&w=400' },
-  { id: 'wesanderson', label: 'WES ANDERSON', description: 'Symmetry & pastel palettes', imageUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=400' },
-  { id: 'technicolor', label: 'TECHNICOLOR', description: 'Ultra-saturated vintage film', imageUrl: 'https://images.unsplash.com/photo-1542204172-658a01820550?auto=format&fit=crop&q=80&w=400' },
-];
-
-const FILTER_OPTIONS: SelectionOption[] = [
-  { id: 'grainy', label: 'FILM GRAIN', imageUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=400' },
-  { id: 'dreamy', label: 'DREAMY BLUR', imageUrl: 'https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?auto=format&fit=crop&q=80&w=400' },
-  { id: 'halation', label: 'HALATION', imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400' },
-  { id: 'glitch', label: 'GLITCH', imageUrl: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=400' },
-];
-
 export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
   prompt,
   setPrompt,
@@ -105,13 +43,13 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
   onGenerate,
 }) => {
   const [activeModal, setActiveModal] = useState<string | null>(null);
-  const [selectionView, setSelectionView] = useState<{title: string, options: SelectionOption[], key: keyof CinematicParams} | null>(null);
+  const [selectionView, setSelectionView] = useState<{ title: string, options: SelectionOption[], key: keyof CinematicParams } | null>(null);
   const [params, setParams] = useState<CinematicParams>({});
   const [isAspectRatioMenuOpen, setIsAspectRatioMenuOpen] = useState(false);
   const [isResolutionMenuOpen, setIsResolutionMenuOpen] = useState(false);
   const [isPromptMode, setIsPromptMode] = useState(false);
   const [attachments, setAttachments] = useState<string[]>([]);
-  
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const promptModeRef = useRef<HTMLTextAreaElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -230,19 +168,19 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
       <div className="absolute bottom-[calc(100%+24px)] left-0 w-[500px] max-h-[50vh] bg-[#1a1a1a]/70 backdrop-blur-[160px] text-white rounded-[2rem] shadow-[0_40px_100px_rgba(0,0,0,0.9)] border border-white/10 overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300 z-[60]">
         <div className="p-6 border-b border-white/5 flex items-center justify-between">
           <div><h3 className="text-[14px] font-black uppercase tracking-tight text-white">{selectionView.title}</h3><p className="text-[9px] font-bold text-white/30 mt-0.5 tracking-wider uppercase">// {selectionView.options.length} OPTIONS</p></div>
-          <button onClick={() => setSelectionView(null)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-white/50 hover:text-white"><X size={18}/></button>
+          <button onClick={() => setSelectionView(null)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-white/50 hover:text-white"><X size={18} /></button>
         </div>
         <div className="p-6">
-           <div className="relative mb-4"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={14} /><input type="text" placeholder="Filter..." className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl outline-none focus:ring-2 ring-[#c7ff00]/20 transition-all text-[13px] font-medium text-white placeholder:text-white/20" /></div>
-           <div className="grid grid-cols-3 gap-3 overflow-y-auto max-h-[30vh] pr-1 scrollbar-thin">
-              {selectionView.options.map(opt => (
-                <button key={opt.id} onClick={() => handleOptionSelect(selectionView.key, opt.label)} className="group relative aspect-[4/5] rounded-xl overflow-hidden text-left transition-transform active:scale-95 border border-white/5">
-                  <img src={opt.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-80 group-hover:opacity-100" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-transparent p-3 flex flex-col justify-end"><span className="text-[10px] font-black text-white leading-tight uppercase tracking-wide">{opt.label}</span></div>
-                  {params[selectionView.key] === opt.label && (<div className="absolute top-2 right-2 w-5 h-5 bg-[#c7ff00] rounded-full flex items-center justify-center shadow-lg"><Check size={12} className="text-black stroke-[4px]"/></div>)}
-                </button>
-              ))}
-           </div>
+          <div className="relative mb-4"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={14} /><input type="text" placeholder="Filter..." className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl outline-none focus:ring-2 ring-[#c7ff00]/20 transition-all text-[13px] font-medium text-white placeholder:text-white/20" /></div>
+          <div className="grid grid-cols-3 gap-3 overflow-y-auto max-h-[30vh] pr-1 scrollbar-thin">
+            {selectionView.options.map(opt => (
+              <button key={opt.id} onClick={() => handleOptionSelect(selectionView.key, opt.label)} className="group relative aspect-[4/5] rounded-xl overflow-hidden text-left transition-transform active:scale-95 border border-white/5">
+                <img src={opt.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-80 group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-transparent p-3 flex flex-col justify-end"><span className="text-[10px] font-black text-white leading-tight uppercase tracking-wide">{opt.label}</span></div>
+                {params[selectionView.key] === opt.label && (<div className="absolute top-2 right-2 w-5 h-5 bg-[#c7ff00] rounded-full flex items-center justify-center shadow-lg"><Check size={12} className="text-black stroke-[4px]" /></div>)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -255,39 +193,40 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
       <div ref={modalRef} className="absolute bottom-[calc(100%+24px)] left-0 w-[340px] bg-[#1a1a1a]/70 backdrop-blur-[160px] text-white rounded-[2rem] shadow-[0_40px_100px_rgba(0,0,0,0.9)] border border-white/10 overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300 z-50">
         <div className="p-6 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-3"><div className="p-2 bg-white/5 rounded-lg text-[#c7ff00]">{tools.find(t => t.id === activeModal)?.icon}</div><h3 className="text-[13px] font-black uppercase tracking-tight text-white">{activeModal}</h3></div>
-          <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-white/50 hover:text-white"><X size={18}/></button>
+          <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-white/50 hover:text-white"><X size={18} /></button>
         </div>
         <div className="p-6 space-y-6">
           {activeModal === 'subject' && (
-             <div className="space-y-4">
-               <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Shot Type</label><button onClick={() => setSelectionView({title: 'Shot Framing', options: SHOT_TYPE_OPTIONS, key: 'shotType'})} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.shotType ? 'text-white' : 'text-white/20'}`}>{params.shotType || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
-               <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">View Angle</label><button onClick={() => setSelectionView({title: 'Camera Angle', options: ANGLE_OPTIONS, key: 'viewDirection'})} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.viewDirection ? 'text-white' : 'text-white/20'}`}>{params.viewDirection || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
+            <div className="space-y-4">
+              <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Shot Type</label><button onClick={() => setSelectionView({ title: 'Shot Framing', options: SHOT_TYPE_OPTIONS, key: 'shotType' })} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.shotType ? 'text-white' : 'text-white/20'}`}>{params.shotType || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
+              <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">View Angle</label><button onClick={() => setSelectionView({ title: 'Camera Angle', options: ANGLE_OPTIONS, key: 'viewDirection' })} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.viewDirection ? 'text-white' : 'text-white/20'}`}>{params.viewDirection || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
             </div>
           )}
           {activeModal === 'lighting' && (
             <div className="space-y-4">
-               <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Source</label><button onClick={() => setSelectionView({title: 'Select Source', options: LIGHTING_OPTIONS, key: 'lightingSource'})} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.lightingSource ? 'text-white' : 'text-white/20'}`}>{params.lightingSource || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
-               <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Mood</label><button onClick={() => setSelectionView({title: 'Select Mood', options: LIGHTING_OPTIONS, key: 'atmosphere'})} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.atmosphere ? 'text-white' : 'text-white/20'}`}>{params.atmosphere || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
+              <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Source</label><button onClick={() => setSelectionView({ title: 'Select Source', options: LIGHTING_OPTIONS, key: 'lightingSource' })} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.lightingSource ? 'text-white' : 'text-white/20'}`}>{params.lightingSource || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
+              <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Mood</label><button onClick={() => setSelectionView({ title: 'Select Mood', options: LIGHTING_OPTIONS, key: 'atmosphere' })} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.atmosphere ? 'text-white' : 'text-white/20'}`}>{params.atmosphere || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
             </div>
           )}
           {activeModal === 'camera' && (
             <div className="space-y-4">
-               <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Gear</label><button onClick={() => setSelectionView({title: 'Select Body', options: CAMERA_OPTIONS, key: 'cameraBody'})} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.cameraBody ? 'text-white' : 'text-white/20'}`}>{params.cameraBody || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
-               <div className="grid grid-cols-2 gap-3">
-                 <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Lens</label><button onClick={() => setSelectionView({title: 'Select Lens', options: LENS_OPTIONS, key: 'focalLength'})} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[10px] font-bold ${params.focalLength ? 'text-white' : 'text-white/20'}`}>{params.focalLength || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
-                 <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Type</label><button onClick={() => setSelectionView({title: 'Lens Type', options: LENS_TYPE_OPTIONS, key: 'lensType'})} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[10px] font-bold ${params.lensType ? 'text-white' : 'text-white/20'}`}>{params.lensType || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
-               </div>
+              <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Gear</label><button onClick={() => setSelectionView({ title: 'Select Body', options: CAMERA_OPTIONS, key: 'cameraBody' })} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.cameraBody ? 'text-white' : 'text-white/20'}`}>{params.cameraBody || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Lens</label><button onClick={() => setSelectionView({ title: 'Select Lens', options: LENS_OPTIONS, key: 'focalLength' })} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[10px] font-bold ${params.focalLength ? 'text-white' : 'text-white/20'}`}>{params.focalLength || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
+                <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Type</label><button onClick={() => setSelectionView({ title: 'Lens Type', options: LENS_TYPE_OPTIONS, key: 'lensType' })} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[10px] font-bold ${params.lensType ? 'text-white' : 'text-white/20'}`}>{params.lensType || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
+              </div>
+              <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Film Stock</label><button onClick={() => setSelectionView({ title: 'Select Film Stock', options: FILM_STOCK_OPTIONS, key: 'filmStock' })} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group"><span className={`text-[11px] font-bold ${params.filmStock ? 'text-white' : 'text-white/20'}`}>{params.filmStock || 'Select...'}</span><ChevronRight size={14} className="text-white/20 group-hover:text-white transition-colors" /></button></div>
             </div>
           )}
           {activeModal === 'style' && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Genre</label><button onClick={() => setSelectionView({title: 'Select Genre', options: GENRE_OPTIONS, key: 'genre'})} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group text-left"><span className={`text-[10px] font-bold truncate pr-1 ${params.genre ? 'text-white' : 'text-white/20'}`}>{params.genre || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white shrink-0" /></button></div>
-                <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Photographer</label><button onClick={() => setSelectionView({title: 'Photographer Style', options: PHOTOGRAPHER_STYLE_OPTIONS, key: 'photographerStyle'})} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group text-left"><span className={`text-[10px] font-bold truncate pr-1 ${params.photographerStyle ? 'text-white' : 'text-white/20'}`}>{params.photographerStyle || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white shrink-0" /></button></div>
+                <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Genre</label><button onClick={() => setSelectionView({ title: 'Select Genre', options: GENRE_OPTIONS, key: 'genre' })} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group text-left"><span className={`text-[10px] font-bold truncate pr-1 ${params.genre ? 'text-white' : 'text-white/20'}`}>{params.genre || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white shrink-0" /></button></div>
+                <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Photographer</label><button onClick={() => setSelectionView({ title: 'Photographer Style', options: PHOTOGRAPHER_STYLE_OPTIONS, key: 'photographerStyle' })} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group text-left"><span className={`text-[10px] font-bold truncate pr-1 ${params.photographerStyle ? 'text-white' : 'text-white/20'}`}>{params.photographerStyle || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white shrink-0" /></button></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Movie Look</label><button onClick={() => setSelectionView({title: 'Movie Aesthetic', options: MOVIE_LOOK_OPTIONS, key: 'movieLook'})} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group text-left"><span className={`text-[10px] font-bold truncate pr-1 ${params.movieLook ? 'text-white' : 'text-white/20'}`}>{params.movieLook || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white shrink-0" /></button></div>
-                <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Filter</label><button onClick={() => setSelectionView({title: 'Filter / Effect', options: FILTER_OPTIONS, key: 'filter'})} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group text-left"><span className={`text-[10px] font-bold truncate pr-1 ${params.filter ? 'text-white' : 'text-white/20'}`}>{params.filter || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white shrink-0" /></button></div>
+                <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Movie Look</label><button onClick={() => setSelectionView({ title: 'Movie Aesthetic', options: MOVIE_LOOK_OPTIONS, key: 'movieLook' })} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group text-left"><span className={`text-[10px] font-bold truncate pr-1 ${params.movieLook ? 'text-white' : 'text-white/20'}`}>{params.movieLook || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white shrink-0" /></button></div>
+                <div className="space-y-1.5"><label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Filter</label><button onClick={() => setSelectionView({ title: 'Filter / Effect', options: FILTER_OPTIONS, key: 'filter' })} className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between hover:border-[#c7ff00]/40 transition-all group text-left"><span className={`text-[10px] font-bold truncate pr-1 ${params.filter ? 'text-white' : 'text-white/20'}`}>{params.filter || 'Select...'}</span><ChevronRight size={12} className="text-white/20 group-hover:text-white shrink-0" /></button></div>
               </div>
             </div>
           )}
@@ -302,7 +241,7 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
     <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[90vw] lg:max-w-4xl px-4 z-50">
       <div className="relative">
         {renderModalContent()}
-        
+
         {/* Consistent Angles Button - Only visible when Variations = 1 */}
         {numVariations === 1 && !isGenerating && prompt.trim() && (
           <button
@@ -323,7 +262,7 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
                 <div className="relative group w-full">
                   <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 animate-in fade-in duration-300">
                     <span className="text-[#c7ff00] font-black text-[10px] uppercase tracking-[0.2em] mb-2 block">Compiled Script //</span>
-                    <textarea 
+                    <textarea
                       ref={promptModeRef}
                       value={prompt}
                       onChange={handlePromptModeChange}
@@ -337,7 +276,7 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
               ) : (
                 <textarea ref={textareaRef} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe your cinematic vision..." className="w-full bg-transparent resize-none outline-none text-[15px] leading-relaxed text-white placeholder-gray-600 font-medium py-1 px-1 max-h-[160px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10" rows={1} />
               )}
-              {hasActiveParams && !isPromptMode && (<div className="flex flex-wrap gap-2 mt-3 border-t border-white/5 pt-3 animate-in fade-in duration-300">{Object.entries(params).map(([key, value]) => value ? (<div key={key} className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5 shadow-sm"><span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{key === 'viewDirection' ? 'Angle' : key}:</span><span className="text-[10px] font-bold text-[#c7ff00]">{value}</span><button onClick={() => setParams({...params, [key]: undefined})} className="text-white/20 hover:text-white transition-colors ml-1"><X size={10} /></button></div>) : null)}</div>)}
+              {hasActiveParams && !isPromptMode && (<div className="flex flex-wrap gap-2 mt-3 border-t border-white/5 pt-3 animate-in fade-in duration-300">{Object.entries(params).map(([key, value]) => value ? (<div key={key} className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5 shadow-sm"><span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{key === 'viewDirection' ? 'Angle' : key}:</span><span className="text-[10px] font-bold text-[#c7ff00]">{value}</span><button onClick={() => setParams({ ...params, [key]: undefined })} className="text-white/20 hover:text-white transition-colors ml-1"><X size={10} /></button></div>) : null)}</div>)}
             </div>
           </div>
 
@@ -348,7 +287,7 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
                 {isAspectRatioMenuOpen && (
                   <div className="absolute bottom-[calc(100%+12px)] left-0 w-44 bg-[#1a1a1a]/70 backdrop-blur-[160px] border border-white/10 rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.7)] overflow-hidden p-2 animate-in fade-in slide-in-from-bottom-3 duration-300 z-[80]">
                     <div className="text-[9px] font-black text-white/30 px-3.5 py-2 uppercase tracking-[0.2em] mb-1">Ratio</div>
-                    {Object.values(AspectRatio).map((ratio) => (<button key={ratio} onClick={() => {setAspectRatio(ratio);setIsAspectRatioMenuOpen(false);}} className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[12px] font-bold transition-all ${aspectRatio === ratio ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}><span>{ratio}</span>{aspectRatio === ratio && <Check size={14} className="text-[#c7ff00]" />}</button>))}
+                    {Object.values(AspectRatio).map((ratio) => (<button key={ratio} onClick={() => { setAspectRatio(ratio); setIsAspectRatioMenuOpen(false); }} className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[12px] font-bold transition-all ${aspectRatio === ratio ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}><span>{ratio}</span>{aspectRatio === ratio && <Check size={14} className="text-[#c7ff00]" />}</button>))}
                   </div>
                 )}
               </div>
@@ -358,7 +297,7 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
                 {isResolutionMenuOpen && (
                   <div className="absolute bottom-[calc(100%+12px)] left-0 w-44 bg-[#1a1a1a]/70 backdrop-blur-[160px] border border-white/10 rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.7)] overflow-hidden p-2 animate-in fade-in slide-in-from-bottom-3 duration-300 z-[80]">
                     <div className="text-[9px] font-black text-white/30 px-3.5 py-2 uppercase tracking-[0.2em] mb-1">Definition</div>
-                    {Object.values(Resolution).map((res) => (<button key={res} onClick={() => {setResolution(res);setIsResolutionMenuOpen(false);}} className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[12px] font-bold transition-all ${resolution === res ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}><span>{res}</span>{resolution === res && <Check size={14} className="text-[#c7ff00]" />}</button>))}
+                    {Object.values(Resolution).map((res) => (<button key={res} onClick={() => { setResolution(res); setIsResolutionMenuOpen(false); }} className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[12px] font-bold transition-all ${resolution === res ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}><span>{res}</span>{resolution === res && <Check size={14} className="text-[#c7ff00]" />}</button>))}
                   </div>
                 )}
               </div>
@@ -370,10 +309,10 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
               <div className="flex items-center gap-1.5 bg-black/40 rounded-2xl p-1.5 border border-white/5 shadow-inner">
                 {tools.map((tool) => {
                   const isActive = (tool.id === 'subject' && (params.shotType || params.viewDirection)) || (tool.id === 'lighting' && (params.lightingSource || params.atmosphere)) || (tool.id === 'camera' && (params.cameraBody || params.focalLength || params.lensType)) || (tool.id === 'style' && (params.genre || params.photographerStyle || params.movieLook || params.filter));
-                  return (<button key={tool.id} data-tool-id={tool.id} onClick={() => {setActiveModal(activeModal === tool.id ? null : tool.id);}} className={`w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-300 relative ${ activeModal === tool.id ? 'bg-white text-black shadow-xl scale-110' : (isActive ? 'text-[#c7ff00] bg-white/10' : 'text-gray-500 hover:text-white hover:bg-white/10') }`}>{React.cloneElement(tool.icon as React.ReactElement, { size: 16 })}{isActive && activeModal !== tool.id && (<div className="absolute -top-1 -right-1 w-2 h-2 bg-[#c7ff00] rounded-full shadow-[0_0_12px_rgba(199,255,0,1)] border border-black/50" />)}</button>);
+                  return (<button key={tool.id} data-tool-id={tool.id} onClick={() => { setActiveModal(activeModal === tool.id ? null : tool.id); }} className={`w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-300 relative ${activeModal === tool.id ? 'bg-white text-black shadow-xl scale-110' : (isActive ? 'text-[#c7ff00] bg-white/10' : 'text-gray-500 hover:text-white hover:bg-white/10')}`}>{React.cloneElement(tool.icon as React.ReactElement, { size: 16 })}{isActive && activeModal !== tool.id && (<div className="absolute -top-1 -right-1 w-2 h-2 bg-[#c7ff00] rounded-full shadow-[0_0_12px_rgba(199,255,0,1)] border border-black/50" />)}</button>);
                 })}
               </div>
-              <button 
+              <button
                 onClick={() => {
                   if (!isPromptMode) {
                     const fullBaked = compilePrompt();
@@ -381,19 +320,19 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
                     setParams({});
                   }
                   setIsPromptMode(!isPromptMode);
-                }} 
-                className={`w-9 h-9 flex items-center justify-center rounded-2xl transition-all duration-500 relative ${isPromptMode ? 'bg-[#c7ff00] text-black shadow-[0_0_20px_rgba(199,255,0,0.5)] scale-110' : 'bg-white/5 text-gray-500 hover:text-white hover:bg-white/10'}`} 
+                }}
+                className={`w-9 h-9 flex items-center justify-center rounded-2xl transition-all duration-500 relative ${isPromptMode ? 'bg-[#c7ff00] text-black shadow-[0_0_20px_rgba(199,255,0,0.5)] scale-110' : 'bg-white/5 text-gray-500 hover:text-white hover:bg-white/10'}`}
                 title="Prompt Engineer Mode"
               >
                 <Zap size={18} className={isPromptMode ? "fill-black" : ""} />
                 {isPromptMode && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-white rounded-full border border-[#c7ff00] animate-pulse" />}
               </button>
-              <button 
-                onClick={() => onGenerate(isPromptMode ? {} : params, attachments)} 
-                disabled={isGenerating || !prompt.trim()} 
-                className="custom-gradient-btn flex items-center justify-center gap-2 px-6 h-10 min-w-[130px] rounded-2xl font-black text-[12px] uppercase tracking-[0.12em] transition-all active:scale-[0.97] disabled:opacity-30 shadow-[0_15px_40px_rgba(199,255,0,0.3)] hover:shadow-[0_15px_50px_rgba(199,255,0,0.4)]"
+              <button
+                onClick={() => onGenerate(isPromptMode ? {} : params, attachments)}
+                disabled={isGenerating || !prompt.trim()}
+                className="custom-gradient-btn flex items-center justify-center gap-2 px-6 h-10 min-w-[130px] rounded-2xl font-semibold text-[12px] uppercase tracking-tight transition-all active:scale-[0.97] disabled:opacity-30 shadow-[0_15px_40px_rgba(199,255,0,0.3)] hover:shadow-[0_15px_50px_rgba(199,255,0,0.4)]"
               >
-                {isGenerating ? (<div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />) : (<><span>Generate</span><Sparkles size={16} className="fill-black" /></>)}
+                {isGenerating ? (<div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />) : (<><span>Generate</span><img src={sparklesIcon} alt="" className="w-4 h-4" /></>)}
               </button>
             </div>
           </div>
