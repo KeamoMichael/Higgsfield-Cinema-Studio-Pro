@@ -13,13 +13,14 @@ const createOptionsFromFiles = (files: Record<string, any>): SelectionOption[] =
 };
 
 // Import all assets using Vite's glob import
-const cameraFiles = import.meta.glob('../Assets/Camera Bodies/*.{png,jpg,jpeg,webp}', { eager: true });
-const lensFiles = import.meta.glob('../Assets/Focal Length/*.{png,jpg,jpeg,webp}', { eager: true });
-const genreFiles = import.meta.glob('../Assets/Photography Genre/*.{png,jpg,jpeg,webp}', { eager: true });
-const photographerFiles = import.meta.glob('../Assets/Photographer Style/*.{png,jpg,jpeg,webp}', { eager: true });
-const movieLookFiles = import.meta.glob('../Assets/Movie Look & Aesthetic/*.{png,jpg,jpeg,webp}', { eager: true });
-const filterFiles = import.meta.glob('../Assets/Filter & Effect/*.{png,jpg,jpeg,webp}', { eager: true });
-const filmStockFiles = import.meta.glob('../Assets/Film Stock/*.{png,jpg,jpeg,webp}', { eager: true });
+const cameraFiles = import.meta.glob('./Assets/Camera Bodies/*.{png,jpg,jpeg,webp}', { eager: true });
+const lensFiles = import.meta.glob('./Assets/Focal Length/*.{png,jpg,jpeg,webp}', { eager: true });
+const genreFiles = import.meta.glob('./Assets/Photography Genre/*.{png,jpg,jpeg,webp}', { eager: true });
+const photographerFiles = import.meta.glob('./Assets/Photographer Style/*.{png,jpg,jpeg,webp}', { eager: true });
+const movieLookFiles = import.meta.glob('./Assets/Movie Look & Aesthetic/*.{png,jpg,jpeg,webp}', { eager: true });
+const filterFiles = import.meta.glob('./Assets/Filter & Effect/*.{png,jpg,jpeg,webp}', { eager: true });
+const filmStockFiles = import.meta.glob('./Assets/Film Stock/*.{png,jpg,jpeg,webp}', { eager: true });
+
 
 export const CAMERA_OPTIONS = createOptionsFromFiles(cameraFiles);
 export const LENS_OPTIONS = createOptionsFromFiles(lensFiles);
