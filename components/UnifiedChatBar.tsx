@@ -285,7 +285,7 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
               <div className="relative" ref={menuRef}>
                 <button onClick={() => setIsAspectRatioMenuOpen(!isAspectRatioMenuOpen)} className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 border border-white/5 ${isAspectRatioMenuOpen ? 'bg-white text-black shadow-xl scale-110' : 'text-gray-500 hover:text-white hover:bg-white/10'}`}><Monitor size={18} /></button>
                 {isAspectRatioMenuOpen && (
-                  <div className="absolute bottom-[calc(100%+12px)] left-0 w-44 bg-[#1a1a1a]/70 backdrop-blur-[160px] border border-white/10 rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.7)] overflow-hidden p-2 animate-in fade-in slide-in-from-bottom-3 duration-300 z-[80]">
+                  <div className="absolute bottom-[calc(100%+12px)] left-0 w-44 bg-[#1a1a1a]/70 backdrop-blur-xl border border-white/10 rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.7)] overflow-hidden p-2 animate-in fade-in slide-in-from-bottom-3 duration-300 z-[100]">
                     <div className="text-[9px] font-black text-white/30 px-3.5 py-2 uppercase tracking-[0.2em] mb-1">Ratio</div>
                     {Object.values(AspectRatio).map((ratio) => (<button key={ratio} onClick={() => { setAspectRatio(ratio); setIsAspectRatioMenuOpen(false); }} className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[12px] font-bold transition-all ${aspectRatio === ratio ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}><span>{ratio}</span>{aspectRatio === ratio && <Check size={14} className="text-[#c7ff00]" />}</button>))}
                   </div>
@@ -295,7 +295,7 @@ export const UnifiedChatBar: React.FC<UnifiedChatBarProps> = ({
               <div className="relative" ref={resMenuRef}>
                 <button onClick={() => setIsResolutionMenuOpen(!isResolutionMenuOpen)} className={`h-9 px-4 flex items-center gap-2 rounded-xl transition-all duration-300 border border-white/5 ${isResolutionMenuOpen ? 'bg-white text-black shadow-xl scale-110' : 'bg-white/5 text-gray-500 hover:text-white hover:bg-white/10'}`}><Box size={16} /><span className="text-[10px] font-black uppercase tracking-widest">{resolution}</span></button>
                 {isResolutionMenuOpen && (
-                  <div className="absolute bottom-[calc(100%+12px)] left-0 w-44 bg-[#1a1a1a]/70 backdrop-blur-[160px] border border-white/10 rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.7)] overflow-hidden p-2 animate-in fade-in slide-in-from-bottom-3 duration-300 z-[80]">
+                  <div className="absolute bottom-[calc(100%+12px)] left-0 w-44 bg-[#1a1a1a]/70 backdrop-blur-xl border border-white/10 rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.7)] overflow-hidden p-2 animate-in fade-in slide-in-from-bottom-3 duration-300 z-[100]">
                     <div className="text-[9px] font-black text-white/30 px-3.5 py-2 uppercase tracking-[0.2em] mb-1">Definition</div>
                     {Object.values(Resolution).map((res) => (<button key={res} onClick={() => { setResolution(res); setIsResolutionMenuOpen(false); }} className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[12px] font-bold transition-all ${resolution === res ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}><span>{res}</span>{resolution === res && <Check size={14} className="text-[#c7ff00]" />}</button>))}
                   </div>

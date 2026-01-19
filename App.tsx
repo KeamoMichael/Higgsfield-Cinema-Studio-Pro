@@ -128,6 +128,30 @@ const App: React.FC = () => {
     }
   };
 
+  const handleGenerateAngles = async (baseImageUrl: string, imageIndex: number) => {
+    setIsGenerating(true);
+    setError(null);
+
+    // Set the base image as reference
+    setReferenceImage(baseImageUrl);
+
+    try {
+      const angles = ['Eye Level', 'Low Angle', 'Side Profile', 'Cinematic Wide'];
+      const generationPromises = angles.map((angle) => {
+        const anglePrompt = `Camera Angle: ${angle}. STRICT REQUIREMENT: Generate the EXACT SAME subject, scene, and composition from a ${angle} perspective. Maintain absolute consistency of character details, clothing, lighting conditions, and environmental elements with the provided reference image.\n--quality: premium, cinematic, highly-detailed, 8k, realistic textures, volumetric effects, masterwork.`;
+        return generateImage(anglePrompt, resolution, aspectRatio, [baseImageUrl]);
+      });
+
+      const urls = await Promise.all(generationPromises);
+      setImageUrls(urls);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "An unexpected error occurred.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="relative h-screen bg-[#050505] flex flex-col overflow-hidden text-white">
       <Header onOpenKeyModal={() => setIsKeyModalOpen(true)} />
@@ -148,6 +172,7 @@ const App: React.FC = () => {
           isLoading={isGenerating}
           modelName="gemini-3-pro-image-preview"
           resolution={resolution}
+          onGenerateAngles={handleGenerateAngles}
         />
       </main>
 

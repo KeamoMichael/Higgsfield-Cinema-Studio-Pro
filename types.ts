@@ -44,3 +44,13 @@ export interface ImageGenerationState {
   error: string | null;
 }
 
+export interface GeneratedImage {
+  id: string;
+  url: string;
+  baseImageId: string | null; // null if this is a base image
+  angleType: string | null; // 'Eye Level', 'Low Angle', 'Side Profile', 'Cinematic Wide'
+  timestamp: number;
+  prompt: string;
+  resolution: Resolution;
+  aspectRatio: AspectRatio;
+}
